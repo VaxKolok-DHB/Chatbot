@@ -4,7 +4,7 @@
 // ไปยัง Google Sheet กลาง สำหรับนำไปทบทวนและเพิ่ม/แก้ไขฐานข้อมูลภายหลัง
 // วิธีตั้งค่า ดูได้จากไฟล์ "คู่มือตั้งค่าการบันทึกคำถาม.md" ที่แนบมาด้วย
 // หากปล่อยว่างไว้ ระบบจะไม่บันทึกข้อมูลใดๆ และจะไม่มี error เกิดขึ้น
-const LOG_ENDPOINT_URL = ''; // เช่น 'https://script.google.com/macros/s/XXXXXXXXXXXX/exec'
+const LOG_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwgqpIUK7-baRCfT8hPS6mbFTI4MSzeh3KUxdTbEHPMpGjzn8cuukq_d7ns-FjYiAog3A/exec'; 
 // ============================================================
 
 // ---------- Setup ----------
