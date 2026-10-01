@@ -419,12 +419,7 @@ const VACCINE_QA = [
 {cat:"สถานที่บริการฉีดวัคซีน", q:"รพ.สต. เปิดให้บริการฉีดวัคซีนกี่โมงถึงกี่โมง", a:"รพ.สต. ทุกแห่งในอำเภอสุไหงโก-ลก (มูโนะ ปูโยะ ปาเสมัส และบ้านกวาลอซีรา) เปิดให้บริการฉีดวัคซีนเวลา 08.30-16.30 น. ส่วนโรงพยาบาลสุไหงโก-ลกเปิดบริการ 24 ชั่วโมง ดูแผนที่นำทางไปแต่ละจุดได้ที่ลิงก์ด้านล่างค่ะ", source:"https://vaxkolok-dhb.github.io/Medical_service_location/", sourceLabel:"จุดบริการวัคซีนเด็ก (VaxKolok-DHB)"},
 {cat:"สถานที่บริการฉีดวัคซีน", q:"ศูนย์แพทย์ใกล้ใจ 1 และ 2 อยู่ที่ไหน เปิดกี่โมง", a:"ศูนย์แพทย์ใกล้ใจ 1 (เทศบาล) และศูนย์แพทย์ใกล้ใจ 2 (เจริญเขต) อยู่ในเครือโรงพยาบาลสุไหงโก-ลก เปิดให้บริการเวลา 08.30-16.30 น. ทั้งสองแห่ง ดูแผนที่นำทางไปแต่ละจุดได้ที่ลิงก์ด้านล่างค่ะ", source:"https://vaxkolok-dhb.github.io/Medical_service_location/", sourceLabel:"จุดบริการวัคซีนเด็ก (VaxKolok-DHB)"},
 ];
-  // Step 4: source note as its own small bubble
-  let srcHtml = `📎 แหล่งอ้างอิง: <a href="${item.source}" target="_blank" rel="noopener">${item.sourceLabel}</a>`;
-  if (item.source2) {
-    srcHtml += ` · <a href="${item.source2}" target="_blank" rel="noopener">${item.sourceLabel2}</a>`;
-  }
-  addBotMessageInstant(srcHtml, 'note-bubble');
+
 // ============================================================
 // ตั้งค่าการบันทึกคำถาม (สำหรับแอดมิน)
 // วาง URL ของ Google Apps Script Web App ที่นี่ เพื่อบันทึกคำถามของผู้ใช้ทุกคน
@@ -683,11 +678,11 @@ async function runAnswerFlow(item, uncertain) {
   await wait(300);
 
   // Step 4: source note as its own small bubble
-  addBotMessageInstant(
-    `📎 แหล่งอ้างอิง: <a href="${item.source}" target="_blank" rel="noopener">${item.sourceLabel}</a>`,
-    'note-bubble'
-  );
-  await wait(650);
+  let srcHtml = `📎 แหล่งอ้างอิง: <a href="${item.source}" target="_blank" rel="noopener">${item.sourceLabel}</a>`;
+  if (item.source2) {
+    srcHtml += ` · <a href="${item.source2}" target="_blank" rel="noopener">${item.sourceLabel2}</a>`;
+  }
+  addBotMessageInstant(srcHtml, 'note-bubble');
 
   // Step 5: follow-up + related suggestions
   showDotTyping();
