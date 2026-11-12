@@ -111,6 +111,9 @@ function logVisit() {
     }).catch(() => {});
   } catch (e) {}
 }
+
+// คำที่บ่งบอกว่าคำถามอยู่ในหัวข้อวัคซีน/สาธารณสุข/บริการในพื้นที่
+const DOMAIN_KEYWORDS = /วัคซีน|ฉีด|เข็ม|ภูมิคุ้มกัน|ภูมิแพ้|ไข้|หวัด|ไอกรน|คอตีบ|บาดทะยัก|โปลิโอ|หัด|คางทูม|ตับอักเสบ|วัณโรค|โรต้า|โควิด|มะเร็งปากมดลูก|ฮาลาล|เจลาติน|อิสลาม|ออทิสติก|ผลข้างเคียง|อาการข้างเคียง|แพ้|นัดฉีด|สมุดสีชมพู|เด็ก|ทารก|ลูก|ตั้งครรภ์|ให้นม|รพ\.?\s?สต|โรงพยาบาล|อสม|ศูนย์แพทย์|สุไหงโก|นราธิวาส|มาเลเซีย|ระบาด|โรค|สุขภาพ|พาราเซตามอล|ตู้เย็น|อุณหภูมิ|HPV|BCG|MMR|DTP|OPV|IPV|LAJE|JE|HB|EPI|AEFI|dT|Tdap|mRNA|vaccin|flu|covid/i;
 // ---------- Question logging (for continuous knowledge-base improvement) ----------
 // Sends every real question asked (not small talk) to the central log, tagged with
 // whether the bot answered confidently, answered with low confidence, or found nothing.
