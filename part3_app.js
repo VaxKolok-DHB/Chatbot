@@ -4,7 +4,7 @@
 // ไปยัง Google Sheet กลาง สำหรับนำไปทบทวนและเพิ่ม/แก้ไขฐานข้อมูลภายหลัง
 // วิธีตั้งค่า ดูได้จากไฟล์ "คู่มือตั้งค่าการบันทึกคำถาม.md" ที่แนบมาด้วย
 // หากปล่อยว่างไว้ ระบบจะไม่บันทึกข้อมูลใดๆ และจะไม่มี error เกิดขึ้น
-const LOG_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwgqpIUK7-baRCfT8hPS6mbFTI4MSzeh3KUxdTbEHPMpGjzn8cuukq_d7ns-FjYiAog3A/exec'; 
+const LOG_ENDPOINT_URL = 'https://docs.google.com/spreadsheets/d/16aCu1az-uJwX2ewKSYIqqYJFkHxgl42nqaENasBXyko/edit?usp=sharing'; 
 // ============================================================
 
 // ---------- Setup ----------
@@ -87,7 +87,30 @@ const NO_MATCH_OPENERS = [
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function wait(ms) { return new Promise(res => setTimeout(res, ms)); }
+function getVisitorId() {
+  try {
+    let id = localStorage.getItem('vk_vid');
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('vk_vid', id);
+    }
+    return id;
+  } catch (e) { return ''; }
+}
 
+function logVisit() {
+  if (!LOG_ENDPOINT_URL) return;
+  try {
+    fetch(LOG_ENDPOINT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        question: '', status: 'visit', matchedQuestion: '', category: '', score: '',
+        visitorId: getVisitorId(), page: location.href, time: new Date().toISOString()
+      })
+    }).catch(() => {});
+  } catch (e) {}
+}
 // ---------- Question logging (for continuous knowledge-base improvement) ----------
 // Sends every real question asked (not small talk) to the central log, tagged with
 // whether the bot answered confidently, answered with low confidence, or found nothing.
