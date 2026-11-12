@@ -770,7 +770,48 @@ function respondSmallTalk(replyBank) {
     addBotMessageInstant(pick(replyBank));
   }, 450);
 }
+function doPost(e) {
+  // กดรันเองจากหน้าแก้ไขจะไม่มี e ให้ข้าม ไม่เขียนแถว ERROR
+  if (!e || !e.postData) {
+    return ContentService.createTextOutput('no request');
+  }
 
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Logs') || ss.insertSheet('Logs');
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['วันเวลา', 'คำถามที่พิมพ์', 'สถานะ', 'คำถามที่จับคู่ได้', 'หมวดหมู่', 'คะแนนความมั่นใจ', 'รหัสผู้เข้าใช้']);
+  }
+
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var statusText;
+    if (data.status === 'visit') statusText = '👁 เปิดหน้าเว็บ';
+    else if (data.status === 'matched') statusText = '✅ ตอบได้มั่นใจ';
+    else if (data.status === 'uncertain') statusText = '⚠️ ตอบแบบไม่มั่นใจ';
+    else if (data.status === 'off_topic') statusText = '🚫 นอกประเด็น';
+    else statusText = '❌ ไม่พบคำตอบ';
+
+    sheet.appendRow([
+      new Date(),
+      data.question || '',
+      statusText,
+      data.matchedQuestion || '',
+      data.category || '',
+      data.score !== undefined ? data.score : '',
+      data.visitorId || ''
+    ]);
+  } catch (err) {
+    sheet.appendRow([new Date(), 'ERROR: ' + err.message, '', '', '', '', '']);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput('VaxKolok ChatBot logging endpoint is running.');
+}
 // ---------- Main query handler ----------
 async function respondOffTopic() {
   await showProcessing(2);
@@ -844,8 +885,10 @@ window.addEventListener('DOMContentLoaded', () => {
   html += `</div>`;
   const row = addBotMessageInstant(html);
   bindSuggestionButtons(row);
+  logVisit();
   chatInput.focus();
 });
+  
 </script>
 </body>
 </html>
