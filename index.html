@@ -556,6 +556,7 @@ function logQuestion(question, status, matchedItem, score) {
         category: matchedItem ? matchedItem.cat : '',
         score: (score !== undefined && score !== null) ? Number(score.toFixed(3)) : '',
         page: location.href,
+        visitorId: getVisitorId(),
         time: new Date().toISOString()
       })
     }).catch(() => {});
