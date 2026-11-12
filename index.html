@@ -514,7 +514,33 @@ const NO_MATCH_OPENERS = [
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function wait(ms) { return new Promise(res => setTimeout(res, ms)); }
+function getVisitorId() {
+  try {
+    let id = localStorage.getItem('vk_vid');
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('vk_vid', id);
+    }
+    return id;
+  } catch (e) { return ''; }
+}
 
+function logVisit() {
+  if (!LOG_ENDPOINT_URL) return;
+  try {
+    fetch(LOG_ENDPOINT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        question: '', status: 'visit', matchedQuestion: '', category: '', score: '',
+        visitorId: getVisitorId(), page: location.href, time: new Date().toISOString()
+      })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+// คำที่บ่งบอกว่าคำถามอยู่ในหัวข้อวัคซีน/สาธารณสุข/บริการในพื้นที่
+const DOMAIN_KEYWORDS = /วัคซีน|ฉีด|เข็ม|ภูมิคุ้มกัน|ภูมิแพ้|ไข้|หวัด|ไอกรน|คอตีบ|บาดทะยัก|โปลิโอ|หัด|คางทูม|ตับอักเสบ|วัณโรค|โรต้า|โควิด|มะเร็งปากมดลูก|ฮาลาล|เจลาติน|อิสลาม|ออทิสติก|ผลข้างเคียง|อาการข้างเคียง|แพ้|นัดฉีด|สมุดสีชมพู|เด็ก|ทารก|ลูก|ตั้งครรภ์|ให้นม|รพ\.?\s?สต|โรงพยาบาล|อสม|ศูนย์แพทย์|สุไหงโก|นราธิวาส|มาเลเซีย|ระบาด|โรค|สุขภาพ|พาราเซตามอล|ตู้เย็น|อุณหภูมิ|HPV|BCG|MMR|DTP|OPV|IPV|LAJE|JE|HB|EPI|AEFI|dT|Tdap|mRNA|vaccin|flu|covid/i;
 // ---------- Question logging (for continuous knowledge-base improvement) ----------
 // Sends every real question asked (not small talk) to the central log, tagged with
 // whether the bot answered confidently, answered with low confidence, or found nothing.
@@ -533,6 +559,8 @@ function logQuestion(question, status, matchedItem, score) {
         category: matchedItem ? matchedItem.cat : '',
         score: (score !== undefined && score !== null) ? Number(score.toFixed(3)) : '',
         page: location.href,
+        page: location.href,
+        visitorId: getVisitorId(),
         time: new Date().toISOString()
       })
     }).catch(() => {});
