@@ -772,20 +772,42 @@ function respondSmallTalk(replyBank) {
 }
 
 // ---------- Main query handler ----------
+async function respondOffTopic() {
+  await showProcessing(2);
+  let html = `ขออภัยค่ะ ผู้ช่วยนี้ตอบได้เฉพาะเรื่องวัคซีนและบริการฉีดวัคซีนในอำเภอสุไหงโก-ลกเท่านั้นค่ะ 🙏 ลองถามเรื่องวัคซีน หรือเลือกหมวดที่สนใจด้านล่างนี้ได้เลยนะคะ`;
+  html += `<div class="suggestions">`;
+  categories.forEach(c => {
+    html += `<button data-cat="${c}">${c}</button>`;
+  });
+  html += `</div>`;
+  const row = addBotMessageInstant(html);
+  bindSuggestionButtons(row);
+}
+
 function handleQuery(rawText) {
-  const text = rawText.trim();
+  const text = rawText.trim().slice(0, 300);
   if (isGreeting(text)) return respondSmallTalk(GREETING_REPLIES);
   if (isThanks(text)) return respondSmallTalk(THANKS_REPLIES);
   if (isBye(text)) return respondSmallTalk(BYE_REPLIES);
 
   const results = fuse.search(text);
-  if (results.length === 0) {
-    logQuestion(text, 'no_match', null, undefined);
-    return respondNoMatch();
+  const best = results[0];
+  const score = best ? best.score : 1;
+  const hasKeyword = DOMAIN_KEYWORDS.test(text);
+
+  // ตัวกรอง: ไม่ตอบถ้าคะแนนไม่ดีพอ หรือไม่มีคำเกี่ยวกับวัคซีนเลยและคะแนนไม่สูงมาก
+  if (score > 0.45 || (!hasKeyword && score > 0.2)) {
+    if (hasKeyword) {
+      // อยู่ในหัวข้อวัคซีน แต่ยังไม่มีคำตอบในฐานข้อมูล
+      logQuestion(text, 'no_match', null, undefined);
+      return respondNoMatch();
+    }
+    // นอกประเด็น
+    logQuestion(text, 'off_topic', null, undefined);
+    return respondOffTopic();
   }
 
-  const best = results[0];
-  const uncertain = best.score > 0.32;
+  const uncertain = score > 0.32;
   logQuestion(text, uncertain ? 'uncertain' : 'matched', best.item, best.score);
   runAnswerFlow(best.item, uncertain);
 }
